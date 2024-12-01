@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -65,6 +66,35 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     });
   }
 
+  void openDialogAndGetData({String? url, String? referer}) async {
+    var dialogVal = await addFileDialogBuilder(context, url: url, referer: referer);
+    if (dialogVal == null) return;
+    setState(() {
+      dataDownloadQueues.add(dialogVal);
+      checkDownload();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HttpServer.bind('127.0.0.1', 60024).then((HttpServer server) {
+      server.listen((request) async { 
+        switch (request.method) {
+          case 'GET':
+            break;
+          case 'POST':
+            var requestBody = jsonDecode(String.fromCharCodes(await request.first));
+            openDialogAndGetData(url: requestBody['url'], referer: requestBody['initiator']);
+            break;
+          default:
+            request.response.statusCode = HttpStatus.methodNotAllowed;
+            request.response.close();
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -74,12 +104,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             Row(
               children: [
                 IconButton(onPressed: () async {
-                  var dialogVal = await addFileDialogBuilder(context);
-                  if (dialogVal == null) return;
-                  setState(() {
-                    dataDownloadQueues.add(dialogVal);
-                    checkDownload();
-                  });
+                  openDialogAndGetData();
                 }, icon: const Icon(Icons.add, size: 32)),
               ],
             ),
