@@ -43,23 +43,46 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     }
   }
 
-  void downloadFile() async {
+  void downloadFile({String? referer}) async {
     setState(() {
       downloading!.status = Status.downloading;
     });
+    List<String> urls = [ downloading!.url! ];
     var httpClient = HttpClient();
-    var request = await httpClient.getUrl(Uri.parse(downloading!.url!));
-    request.headers.set("Referer", 'https://phim.vkool8.net/');
-    var response = await request.close();
-    var bytes = await consolidateHttpClientResponseBytes(response, onBytesReceived: (cumulative, total) {
-      setState(() {
-        downloading!.downloadedSize = cumulative.toDouble() / 1024;
+    HttpClientRequest request;
+    if (downloading!.size == 0) {
+      request = await httpClient.getUrl(Uri.parse(downloading!.url!));
+      if (referer != null && referer.isNotEmpty) request.headers.set("Referer", referer);
+      var response = await request.close();
+      if (response.headers['content-type']?.first == "application/vnd.apple.mpegurl") {
+        var listData = await response.transform(utf8.decoder).join();
+        var urlList = listData.split('\n').where((e) => e.startsWith('https://'));
+        urls.clear();
+        urls.addAll(urlList);
+      }
+    }
+    bool isFirstTime = true;
+    downloading!.downloadedSize = 0;
+    double prvDownloadSize = 0;
+    for (var url in urls) {
+      request = await httpClient.getUrl(Uri.parse(url));
+      if (referer != null && referer.isNotEmpty) request.headers.set("Referer", referer);
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response, onBytesReceived: (cumulative, total) {
+        setState(() {
+          downloading!.downloadedSize = prvDownloadSize + cumulative.toDouble() / 1024;
+        });
+        log("Received $cumulative bytes.");
       });
-      log("Received $cumulative bytes.");
-    });
-    var file = File(downloading!.path!);
-    log("Downloaded ${bytes.length} bytes.");
-    await file.writeAsBytes(bytes);
+      // if (response.headers['content-type']?.first == 'image/png') {
+      //   bytes = Uint8List.fromList(bytes.skip(1).toList());
+      // }
+      var file = File(downloading!.path!);
+      log("Downloaded ${bytes.length} bytes.");
+      prvDownloadSize += bytes.length / 1024;
+      await file.writeAsBytes(bytes, mode: isFirstTime ? FileMode.write : FileMode.append);
+      isFirstTime = false;
+    }
     setState(() {
       downloading!.status = Status.downloadCompleted;
       checkDownload();

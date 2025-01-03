@@ -9,7 +9,7 @@ String doubleToString(double? value) {
 }
 
 var txtUrl = TextEditingController();
-var txtSaveFilePath = TextEditingController(text: "D:\\test.mp4");
+var txtSaveFilePath = TextEditingController();
 double? fileSize;
 Future<DataDownloadQueue?> addFileDialogBuilder(BuildContext context, {String? url, String? referer}) async {
   if (url != null && url.isNotEmpty)
@@ -92,7 +92,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(BuildContext context, {String? u
                     contentLength = contentLength / 1024;
                   }
                   setState(() => fileSize = contentLength);
-                  if (fileSize != null && fileSize! > 0) {
+                  if ((fileSize != null && fileSize! > 0) || 'application/vnd.apple.mpegurl' == headUrl.headers['content-type']) {
                     if (!context.mounted) return;
                     Navigator.pop(context, DataDownloadQueue(txtSaveFilePath.text,txtUrl.text,fileSize));
                   }
