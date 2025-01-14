@@ -32,13 +32,15 @@ class M3U8DownloaderView extends StatefulWidget {
 }
 
 class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
-  List<DataDownloadQueue>  dataDownloadQueues = [];
+  List<DataDownloadQueue> dataDownloadQueues = [];
   DataDownloadQueue? downloading;
 
   void checkDownload() async {
-    if (downloading == null && dataDownloadQueues.any((c) => c.status == Status.none))
-    {
-      downloading = dataDownloadQueues.firstWhere((c) => c.status == Status.none);
+    if (downloading == null &&
+        dataDownloadQueues.any((c) => c.status == Status.none)) {
+      downloading = dataDownloadQueues.firstWhere(
+        (c) => c.status == Status.none,
+      );
       downloadFile();
     }
   }
@@ -47,16 +49,31 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     setState(() {
       downloading!.status = Status.downloading;
     });
-    List<String> urls = [ downloading!.url! ];
+    List<String> urls = [downloading!.url!];
     var httpClient = HttpClient();
     HttpClientRequest request;
     if (downloading!.size == 0) {
       request = await httpClient.getUrl(Uri.parse(downloading!.url!));
-      if (referer != null && referer.isNotEmpty) request.headers.set("Referer", referer);
+      if (referer != null && referer.isNotEmpty) {
+        request.headers.set("Referer", referer);
+      }
       var response = await request.close();
-      if (response.headers['content-type']?.first == "application/vnd.apple.mpegurl") {
+      if (response.headers['content-type']?.first ==
+          "application/vnd.apple.mpegurl") {
         var listData = await response.transform(utf8.decoder).join();
-        var urlList = listData.split('\n').where((e) => e.startsWith('https://'));
+        var urlList = listData
+            .split('\n')
+            .where((e) => e.startsWith('#EXT') == false && e.isNotEmpty);
+        if (urlList.any((e) => e.startsWith("https://") == false)) {
+          var baseAddress = downloading!.url!.substring(
+            0,
+            downloading!.url!.lastIndexOf('/'),
+          );
+          urlList = urlList.map(
+            (e) => e.startsWith('https://') ? e : "$baseAddress/$e",
+          );
+          log(baseAddress);
+        }
         urls.clear();
         urls.addAll(urlList);
       }
@@ -66,21 +83,30 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     double prvDownloadSize = 0;
     for (var url in urls) {
       request = await httpClient.getUrl(Uri.parse(url));
-      if (referer != null && referer.isNotEmpty) request.headers.set("Referer", referer);
+      if (referer != null && referer.isNotEmpty) {
+        request.headers.set("Referer", referer);
+      }
       var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response, onBytesReceived: (cumulative, total) {
-        setState(() {
-          downloading!.downloadedSize = prvDownloadSize + cumulative.toDouble() / 1024;
-        });
-        log("Received $cumulative bytes.");
-      });
+      var bytes = await consolidateHttpClientResponseBytes(
+        response,
+        onBytesReceived: (cumulative, total) {
+          setState(() {
+            downloading!.downloadedSize =
+                prvDownloadSize + cumulative.toDouble() / 1024;
+          });
+          log("Received $cumulative bytes.");
+        },
+      );
       // if (response.headers['content-type']?.first == 'image/png') {
       //   bytes = Uint8List.fromList(bytes.skip(1).toList());
       // }
       var file = File(downloading!.path!);
       log("Downloaded ${bytes.length} bytes.");
       prvDownloadSize += bytes.length / 1024;
-      await file.writeAsBytes(bytes, mode: isFirstTime ? FileMode.write : FileMode.append);
+      await file.writeAsBytes(
+        bytes,
+        mode: isFirstTime ? FileMode.write : FileMode.append,
+      );
       isFirstTime = false;
     }
     setState(() {
@@ -90,7 +116,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   }
 
   void openDialogAndGetData({String? url, String? referer}) async {
-    var dialogVal = await addFileDialogBuilder(context, url: url, referer: referer);
+    var dialogVal = await addFileDialogBuilder(
+      context,
+      url: url,
+      referer: referer,
+    );
     if (dialogVal == null) return;
     setState(() {
       dataDownloadQueues.add(dialogVal);
@@ -102,13 +132,18 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   void initState() {
     super.initState();
     HttpServer.bind('127.0.0.1', 60024).then((HttpServer server) {
-      server.listen((request) async { 
+      server.listen((request) async {
         switch (request.method) {
           case 'GET':
             break;
           case 'POST':
-            var requestBody = jsonDecode(String.fromCharCodes(await request.first));
-            openDialogAndGetData(url: requestBody['url'], referer: requestBody['initiator']);
+            var requestBody = jsonDecode(
+              String.fromCharCodes(await request.first),
+            );
+            openDialogAndGetData(
+              url: requestBody['url'],
+              referer: requestBody['initiator'],
+            );
             break;
           default:
             request.response.statusCode = HttpStatus.methodNotAllowed;
@@ -126,9 +161,12 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           children: [
             Row(
               children: [
-                IconButton(onPressed: () async {
-                  openDialogAndGetData();
-                }, icon: const Icon(Icons.add, size: 32)),
+                IconButton(
+                  onPressed: () async {
+                    openDialogAndGetData();
+                  },
+                  icon: const Icon(Icons.add, size: 32),
+                ),
               ],
             ),
             DataTable(
@@ -138,13 +176,23 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 DataColumn(label: const Text('Status')),
                 DataColumn(label: const Text('...')),
               ],
-              rows: dataDownloadQueues.map((e) => DataRow(cells: [ 
-                  DataCell(Text("${e.path}")),
-                  DataCell(Text("${doubleToString(e.size)} KB")),
-                  DataCell(Text("${e.status}")),
-                  DataCell(Text("${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB")),
-                ]),
-              ).toList(),
+              rows:
+                  dataDownloadQueues
+                      .map(
+                        (e) => DataRow(
+                          cells: [
+                            DataCell(Text("${e.path}")),
+                            DataCell(Text("${doubleToString(e.size)} KB")),
+                            DataCell(Text("${e.status}")),
+                            DataCell(
+                              Text(
+                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      .toList(),
             ),
           ],
         ),
