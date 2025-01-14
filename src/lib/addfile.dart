@@ -105,6 +105,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                           txtSaveFilePath.text,
                           txtUrl.text,
                           fileSize,
+                          referer,
                         ),
                       );
                     }

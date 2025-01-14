@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +48,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     setState(() {
       downloading!.status = Status.downloading;
     });
+    if (referer == null || referer.isEmpty) referer = downloading!.referer;
     List<String> urls = [downloading!.url!];
     var httpClient = HttpClient();
     HttpClientRequest request;
@@ -72,7 +72,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           urlList = urlList.map(
             (e) => e.startsWith('https://') ? e : "$baseAddress/$e",
           );
-          log(baseAddress);
         }
         urls.clear();
         urls.addAll(urlList);
@@ -94,14 +93,12 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             downloading!.downloadedSize =
                 prvDownloadSize + cumulative.toDouble() / 1024;
           });
-          log("Received $cumulative bytes.");
         },
       );
       // if (response.headers['content-type']?.first == 'image/png') {
       //   bytes = Uint8List.fromList(bytes.skip(1).toList());
       // }
       var file = File(downloading!.path!);
-      log("Downloaded ${bytes.length} bytes.");
       prvDownloadSize += bytes.length / 1024;
       await file.writeAsBytes(
         bytes,
