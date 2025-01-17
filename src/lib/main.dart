@@ -35,7 +35,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   DataDownloadQueue? downloading;
 
   void checkDownload() async {
-    if (downloading == null &&
+    if ((downloading == null ||
+            downloading?.status == Status.downloadCompleted) &&
         dataDownloadQueues.any((c) => c.status == Status.none)) {
       downloading = dataDownloadQueues.firstWhere(
         (c) => c.status == Status.none,
