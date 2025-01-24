@@ -108,6 +108,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         );
         isFirstTime = false;
       }
+      setState(() {
+        downloading!.status = Status.downloadCompleted;
+        checkDownload();
+      });
     } catch (ex) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -115,10 +119,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         ).showSnackBar(SnackBar(content: Text(ex.toString())));
       }
     }
-    setState(() {
-      downloading!.status = Status.downloadCompleted;
-      checkDownload();
-    });
   }
 
   void openDialogAndGetData({String? url, String? referer}) async {
