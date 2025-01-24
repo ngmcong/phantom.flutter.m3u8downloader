@@ -81,31 +81,39 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     bool isFirstTime = true;
     downloading!.downloadedSize = 0;
     double prvDownloadSize = 0;
-    for (var url in urls) {
-      request = await httpClient.getUrl(Uri.parse(url));
-      if (referer != null && referer.isNotEmpty) {
-        request.headers.set("Referer", referer);
+    try {
+      for (var url in urls) {
+        request = await httpClient.getUrl(Uri.parse(url));
+        if (referer != null && referer.isNotEmpty) {
+          request.headers.set("Referer", referer);
+        }
+        var response = await request.close();
+        var bytes = await consolidateHttpClientResponseBytes(
+          response,
+          onBytesReceived: (cumulative, total) {
+            setState(() {
+              downloading!.downloadedSize =
+                  prvDownloadSize + cumulative.toDouble() / 1024;
+            });
+          },
+        );
+        // if (response.headers['content-type']?.first == 'image/png') {
+        //   bytes = Uint8List.fromList(bytes.skip(1).toList());
+        // }
+        var file = File(downloading!.path!);
+        prvDownloadSize += bytes.length / 1024;
+        await file.writeAsBytes(
+          bytes,
+          mode: isFirstTime ? FileMode.write : FileMode.append,
+        );
+        isFirstTime = false;
       }
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(
-        response,
-        onBytesReceived: (cumulative, total) {
-          setState(() {
-            downloading!.downloadedSize =
-                prvDownloadSize + cumulative.toDouble() / 1024;
-          });
-        },
-      );
-      // if (response.headers['content-type']?.first == 'image/png') {
-      //   bytes = Uint8List.fromList(bytes.skip(1).toList());
-      // }
-      var file = File(downloading!.path!);
-      prvDownloadSize += bytes.length / 1024;
-      await file.writeAsBytes(
-        bytes,
-        mode: isFirstTime ? FileMode.write : FileMode.append,
-      );
-      isFirstTime = false;
+    } catch (ex) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ex.toString())));
+      }
     }
     setState(() {
       downloading!.status = Status.downloadCompleted;

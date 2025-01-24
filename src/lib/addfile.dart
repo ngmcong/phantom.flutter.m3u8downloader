@@ -53,6 +53,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                           border: OutlineInputBorder(),
                           hintText: 'Input your url',
                         ),
+                        readOnly: true,
                       ),
                     ),
                     TextButton(
