@@ -59,8 +59,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         request.headers.set("Referer", referer);
       }
       var response = await request.close();
-      if (response.headers['content-type']?.first ==
-          "application/vnd.apple.mpegurl") {
+      String headerContent = response.headers['content-type']?.first ?? "";
+      if (validTypes.contains(headerContent)) {
         var listData = await response.transform(utf8.decoder).join();
         var urlList = listData
             .split('\n')

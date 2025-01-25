@@ -92,13 +92,13 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       contentLength = contentLength / 1024;
                     }
                     setState(() => fileSize = contentLength);
-                    if ('application/vnd.apple.mpegurl' ==
-                        headUrl.headers['content-type']) {
+                    String headerContent =
+                        headUrl.headers['content-type'] ?? "";
+                    if (validTypes.contains(headerContent)) {
                       fileSize = 0;
                     }
                     if ((fileSize != null && fileSize! > 0) ||
-                        'application/vnd.apple.mpegurl' ==
-                            headUrl.headers['content-type']) {
+                        validTypes.contains(headerContent)) {
                       if (!context.mounted) return;
                       Navigator.pop(
                         context,

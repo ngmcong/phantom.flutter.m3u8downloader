@@ -12,3 +12,9 @@ class DataDownloadQueue {
 
   Map<String, dynamic> toJson() => {'path': path, 'url': url, 'size': size};
 }
+
+List<String> validTypes = [
+  'application/vnd.apple.mpegurl',
+  'application/x-mpegurl',
+  'application/x-mpegurl; charset=utf-8',
+];
