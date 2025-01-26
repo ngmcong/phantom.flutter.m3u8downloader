@@ -45,6 +45,46 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     }
   }
 
+  Future<String> getMediaFromList(
+    String listData,
+    HttpClient httpClient,
+    HttpClientRequest request,
+    String? referer,
+  ) async {
+    if (listData.contains('RESOLUTION=')) {
+      var listMedias =
+          listData.split('\n').where((e) => e.contains("RESOLUTION=")).toList();
+      var intRegex = RegExp(r'RESOLUTION=(\d+x\d+)', multiLine: false);
+      String maxRegValue = '';
+      String currentMaxLineValue = '';
+      for (var media in listMedias) {
+        var matches = intRegex.allMatches(media).map((m) => m.group(1));
+        var math = matches.first ?? '';
+        var testArray = [maxRegValue, math];
+        testArray.sort();
+        if (testArray[1] == math) {
+          maxRegValue = math;
+          currentMaxLineValue = media;
+        }
+      }
+      listMedias =
+          listData
+              .split('\n')
+              .where(
+                (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
+              )
+              .toList();
+      var indexLine = listMedias.indexOf(currentMaxLineValue);
+      request = await httpClient.getUrl(Uri.parse(listMedias[indexLine + 1]));
+      if (referer != null && referer.isNotEmpty) {
+        request.headers.set("Referer", referer);
+      }
+      var response = await request.close();
+      return await response.transform(utf8.decoder).join();
+    }
+    return listData;
+  }
+
   void downloadFile({String? referer}) async {
     setState(() {
       downloading!.status = Status.downloading;
@@ -62,6 +102,12 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       String headerContent = response.headers['content-type']?.first ?? "";
       if (validTypes.contains(headerContent)) {
         var listData = await response.transform(utf8.decoder).join();
+        listData = await getMediaFromList(
+          listData,
+          httpClient,
+          request,
+          referer,
+        );
         var urlList = listData
             .split('\n')
             .where((e) => e.startsWith('#EXT') == false && e.isNotEmpty);
