@@ -31,7 +31,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
               children: [
                 Row(
                   children: [
-                    SizedBox(width: 60, child: const Text('URL:')),
+                    const SizedBox(width: 60, child: Text('URL:')),
                     Expanded(
                       child: TextField(
                         controller: txtUrl,
@@ -45,7 +45,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                 ),
                 Row(
                   children: [
-                    SizedBox(width: 60, child: const Text('Save as:')),
+                    const SizedBox(width: 60, child: Text('Save as:')),
                     Expanded(
                       child: TextField(
                         controller: txtSaveFilePath,
@@ -64,10 +64,10 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                         );
                         txtSaveFilePath.text = outputFile ?? "";
                       },
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(Icons.open_in_browser, size: 32),
-                          const Text('...'),
+                          Icon(Icons.open_in_browser, size: 32),
+                          Text('...'),
                         ],
                       ),
                     ),
@@ -75,7 +75,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                 ),
                 Row(
                   children: [
-                    SizedBox(width: 60, child: const Text('File size:')),
+                    const SizedBox(width: 60, child: Text('File size:')),
                     Text("${doubleToString(fileSize)} KB"),
                   ],
                 ),
@@ -99,6 +99,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                     }
                     if ((fileSize != null && fileSize! > 0) ||
                         validTypes.contains(headerContent)) {
+                      // ignore: use_build_context_synchronously
                       if (!context.mounted) return;
                       Navigator.pop(
                         context,
@@ -111,10 +112,10 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       );
                     }
                   },
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const Icon(Icons.add, size: 32),
-                      const Text('Save to queue'),
+                      Icon(Icons.add, size: 32),
+                      Text('Save to queue'),
                     ],
                   ),
                 ),

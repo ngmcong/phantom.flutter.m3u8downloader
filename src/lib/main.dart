@@ -14,10 +14,10 @@ class M3U8DownloaderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: Scaffold(
         // appBar: AppBar(title: const Text('MiniSalePOS')),
-        body: const M3U8DownloaderView(),
+        body: M3U8DownloaderView(),
       ),
     );
   }
@@ -67,13 +67,12 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           currentMaxLineValue = media;
         }
       }
-      listMedias =
-          listData
-              .split('\n')
-              .where(
-                (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
-              )
-              .toList();
+      listMedias = listData
+          .split('\n')
+          .where(
+            (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
+          )
+          .toList();
       var indexLine = listMedias.indexOf(currentMaxLineValue);
       request = await httpClient.getUrl(Uri.parse(listMedias[indexLine + 1]));
       if (referer != null && referer.isNotEmpty) {
@@ -222,29 +221,28 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               ],
             ),
             DataTable(
-              columns: [
-                DataColumn(label: const Text('Path')),
-                DataColumn(label: const Text('Size')),
-                DataColumn(label: const Text('Status')),
-                DataColumn(label: const Text('...')),
+              columns: const [
+                DataColumn(label: Text('Path')),
+                DataColumn(label: Text('Size')),
+                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('...')),
               ],
-              rows:
-                  dataDownloadQueues
-                      .map(
-                        (e) => DataRow(
-                          cells: [
-                            DataCell(Text("${e.path}")),
-                            DataCell(Text("${doubleToString(e.size)} KB")),
-                            DataCell(Text("${e.status}")),
-                            DataCell(
-                              Text(
-                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
-                              ),
-                            ),
-                          ],
+              rows: dataDownloadQueues
+                  .map(
+                    (e) => DataRow(
+                      cells: [
+                        DataCell(Text("${e.path}")),
+                        DataCell(Text("${doubleToString(e.size)} KB")),
+                        DataCell(Text("${e.status}")),
+                        DataCell(
+                          Text(
+                            "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
+                          ),
                         ),
-                      )
-                      .toList(),
+                      ],
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
