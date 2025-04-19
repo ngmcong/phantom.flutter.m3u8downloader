@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:m3u8downloader/addfile.dart';
-import 'package:m3u8downloader/dataentities.dart';
+import 'package:src/addfile.dart';
+import 'package:src/dataentities.dart';
 
 void main() {
   runApp(const M3U8DownloaderApp());

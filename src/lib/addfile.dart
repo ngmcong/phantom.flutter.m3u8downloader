@@ -1,8 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:m3u8downloader/dataentities.dart';
+import 'package:src/dataentities.dart';
+import 'package:http/http.dart' as http;
 
 String doubleToString(double? value) {
   return NumberFormat("###,###", "en_US").format(value ?? 0);
