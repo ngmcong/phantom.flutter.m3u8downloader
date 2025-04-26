@@ -4,8 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:src/addfile.dart';
 import 'package:src/dataentities.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
   runApp(const M3U8DownloaderApp());
 }
 
@@ -198,6 +201,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 (e) => e['contenttype'] == 'application/vnd.apple.mpegurl',
               );
             }
+            await windowManager.focus();
             openDialogAndGetData(
               url: data['url'],
               referer: data['initiator'],
