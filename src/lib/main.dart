@@ -2,86 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:src/addfile.dart';
 import 'package:src/dataentities.dart';
-import 'package:uuid/uuid.dart';
-
-Future<void> initializeNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('app_icon'); // Replace 'app_icon'
-
-  final DarwinInitializationSettings initializationSettingsIOS =
-      DarwinInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
-  );
-  const LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(defaultActionName: 'Open notification');
-  const uuid = Uuid();
-  final String appGuid = uuid.v4(); // Generate a unique UUID
-  final WindowsInitializationSettings initializationSettingsWindows =
-      WindowsInitializationSettings(
-    appName: 'm3u8downloader', // Ensure you have this
-    appUserModelId: 'com.phantom.m3u8downloader', // Ensure you have this
-    guid: appGuid, // Add the 'guid' parameter
-  );
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: initializationSettingsIOS,
-    linux: initializationSettingsLinux,
-    windows: initializationSettingsWindows, // Add Windows settings here
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onDidReceiveNotificationResponse:
-          (NotificationResponse notificationResponse) async {
-    // Handle notification tap
-    // Navigate to the relevant screen in your app
-    if (kDebugMode) {
-      print('Notification tapped: ${notificationResponse.payload}');
-    }
-    // Navigate to the desired screen based on the payload
-    // Navigator.of(context).pushNamed(notificationResponse.payload!);
-  }, onDidReceiveBackgroundNotificationResponse: notificationTapBackgroundHandler);
-}
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-Future<void> showTaskCompletedNotification() async {
-  const AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails(
-          'task_completed_channel', // Your channel ID
-          'Task Completed Notifications', // Your channel name
-          channelDescription: 'Notifications when a background task finishes',
-          importance: Importance.high,
-          priority: Priority.high,
-          ticker: 'ticker');
-  const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidNotificationDetails, iOS: DarwinNotificationDetails(),
-      windows: WindowsNotificationDetails());
-  await flutterLocalNotificationsPlugin.show(0, 'Task Completed!',
-      'Your background task has finished.', notificationDetails,
-      payload: 'task_completed'); // Optional payload to navigate on tap
-}
-
-void notificationTapBackgroundHandler(
-    NotificationResponse notificationResponse) {
-  // Handle notification tap when app is in background or terminated
-  if (kDebugMode) {
-    print('Background notification tapped: ${notificationResponse.payload}');
-  }
-  // You might need to use a background isolate to perform actions here
-}
 
 void main() {
-  initializeNotifications().then((_) {
-    if (kDebugMode) {
-      print('Notifications initialized');
-    }
-  });
   runApp(const M3U8DownloaderApp());
 }
 
@@ -274,7 +198,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 (e) => e['contenttype'] == 'application/vnd.apple.mpegurl',
               );
             }
-            await showTaskCompletedNotification();
             openDialogAndGetData(
               url: data['url'],
               referer: data['initiator'],
