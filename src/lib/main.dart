@@ -154,7 +154,14 @@ Future<void> flutterLocalNotificationInitialize() async {
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
     iOS: initializationSettingsDarwin,
-    macOS: initializationSettingsDarwin,
+    macOS: const DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      defaultPresentAlert: true, // Show alert even when app is foreground
+      defaultPresentBadge: true, // Update badge even when app is foreground
+      defaultPresentSound: true, // Play sound even when app is foreground
+    ),
     linux: initializationSettingsLinux,
   );
   await flutterLocalNotificationsPlugin.initialize(
