@@ -191,9 +191,15 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             var requestBody = jsonDecode(
               String.fromCharCodes(await request.first),
             );
+            var data  = requestBody.last;
+            if (requestBody.any((e) => e['contenttype'] == 'application/vnd.apple.mpegurl')) {
+              data = requestBody.firstWhere(
+                (e) => e['contenttype'] == 'application/vnd.apple.mpegurl',
+              );
+            }
             openDialogAndGetData(
-              url: requestBody['url'],
-              referer: requestBody['initiator'],
+              url: data['url'],
+              referer: data['initiator'],
             );
             break;
           default:
