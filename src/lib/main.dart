@@ -323,24 +323,33 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     downloading!.downloadedSize = 0;
     double prvDownloadSize = 0;
     try {
+      if (urls.any((element) => element.endsWith('.m4s'))) {
+        throw Exception(
+          "This file is not supported. Please use the latest version of the app.",
+        );
+      }
+      double part = 0;
       for (var url in urls) {
         request = await httpClient.getUrl(Uri.parse(url));
         if (referer != null && referer.isNotEmpty) {
           request.headers.set("Referer", referer);
         }
         var response = await request.close();
+        part++;
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
             setState(() {
               downloading!.downloadedSize =
                   prvDownloadSize + cumulative.toDouble() / 1024;
+              downloading!.size =
+                  downloading!.downloadedSize / part * urls.length;
             });
           },
         );
-        // if (response.headers['content-type']?.first == 'image/png') {
-        //   bytes = Uint8List.fromList(bytes.skip(1).toList());
-        // }
+        if (response.headers['content-type']?.first == 'image/png') {
+          bytes = Uint8List.fromList(bytes.skip(1).toList());
+        }
         var file = File(downloading!.path!);
         prvDownloadSize += bytes.length / 1024;
         await file.writeAsBytes(
@@ -355,6 +364,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         checkDownload();
       });
     } catch (ex) {
+      setState(() {
+        downloading!.status = Status.downloadCompleted;
+        checkDownload();
+      });
       if (mounted) {
         ScaffoldMessenger.of(
           context,
