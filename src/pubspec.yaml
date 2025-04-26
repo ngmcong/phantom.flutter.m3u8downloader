@@ -1,4 +1,4 @@
-name: src
+name: m3u8downloader
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -40,6 +40,7 @@ dependencies:
   file_picker: ^7.0.2
   window_manager: ^0.4.3
   flutter_local_notifications: ^17.2.4
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:

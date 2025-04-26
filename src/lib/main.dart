@@ -5,9 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:src/addfile.dart';
-import 'package:src/dataentities.dart';
+import 'package:m3u8downloader/addfile.dart';
+import 'package:m3u8downloader/dataentities.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:path/path.dart' as path;
 
 int id = 0;
 
@@ -183,7 +184,7 @@ Future<void> flutterLocalNotificationInitialize() async {
   );
 }
 
-Future<void> _showNotification() async {
+Future<void> _showNotification(String fileName) async {
   const AndroidNotificationDetails androidNotificationDetails =
       AndroidNotificationDetails('your channel id', 'your channel name',
           channelDescription: 'your channel description',
@@ -192,8 +193,8 @@ Future<void> _showNotification() async {
           ticker: 'ticker');
   const NotificationDetails notificationDetails =
       NotificationDetails(android: androidNotificationDetails);
-  await flutterLocalNotificationsPlugin.show(
-      id++, 'Thong bao', 'Tai file hoan tat', notificationDetails,
+  await flutterLocalNotificationsPlugin.show(id++, 'Message',
+      'Download $fileName file completed!', notificationDetails,
       payload: 'item x');
 }
 
@@ -350,7 +351,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
-        _showNotification();
+        _showNotification(path.basenameWithoutExtension(downloading!.path!));
         checkDownload();
       });
     } catch (ex) {
