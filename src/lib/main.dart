@@ -193,7 +193,7 @@ Future<void> _showNotification() async {
   const NotificationDetails notificationDetails =
       NotificationDetails(android: androidNotificationDetails);
   await flutterLocalNotificationsPlugin.show(
-      id++, 'plain title', 'plain body', notificationDetails,
+      id++, 'Thong bao', 'Tai file hoan tat', notificationDetails,
       payload: 'item x');
 }
 
@@ -350,6 +350,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
+        _showNotification();
         checkDownload();
       });
     } catch (ex) {
@@ -393,7 +394,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 (e) => e['contenttype'] == 'application/vnd.apple.mpegurl',
               );
             }
-            _showNotification();
             await windowManager.show();
             await windowManager.focus();
             openDialogAndGetData(
