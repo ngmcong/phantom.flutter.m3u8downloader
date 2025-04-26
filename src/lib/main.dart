@@ -402,10 +402,13 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               String.fromCharCodes(await request.first),
             );
             var data = requestBody.last;
-            if (requestBody.any(
-                (e) => e['contenttype'] == 'application/vnd.apple.mpegurl')) {
+            if (requestBody.any((e) =>
+                e['contenttype'] == 'application/vnd.apple.mpegurl' &&
+                e['url'].toString().contains('master.m3u8') == false)) {
               data = requestBody.firstWhere(
-                (e) => e['contenttype'] == 'application/vnd.apple.mpegurl',
+                (e) =>
+                    e['contenttype'] == 'application/vnd.apple.mpegurl' &&
+                    e['url'].toString().contains('master.m3u8') == false,
               );
             }
             await windowManager.show();
