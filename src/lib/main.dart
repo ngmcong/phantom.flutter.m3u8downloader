@@ -354,7 +354,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     downloading!.downloadedSize = 0;
     double prvDownloadSize = 0;
     try {
-      double part = 0;
+      downloading!.numberOfOffset = urls.length;
+      int part = 0;
       for (var url in urls) {
         request = await httpClient.getUrl(Uri.parse(url));
         if (referer != null && referer.isNotEmpty) {
@@ -366,10 +367,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           response,
           onBytesReceived: (cumulative, total) {
             setState(() {
+              downloading!.currentOffset = part;
               downloading!.downloadedSize =
                   prvDownloadSize + cumulative.toDouble() / 1024;
               downloading!.size =
-                  downloading!.downloadedSize / part * urls.length;
+                  downloading!.downloadedSize / part.toDouble() * urls.length;
             });
           },
         );
@@ -484,7 +486,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                             DataCell(Text("${e.status}")),
                             DataCell(
                               Text(
-                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
+                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
                               ),
                             ),
                           ],

@@ -7,6 +7,8 @@ class DataDownloadQueue {
   Status status = Status.none;
   double downloadedSize = 0;
   String? referer;
+  int numberOfOffset = 0;
+  int currentOffset = 0;
 
   DataDownloadQueue(this.path, this.url, this.size, this.referer);
 
