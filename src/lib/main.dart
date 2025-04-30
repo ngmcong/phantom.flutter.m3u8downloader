@@ -23,8 +23,9 @@ final StreamController<ReceivedNotification> didReceiveLocalNotificationStream =
 final StreamController<String?> selectNotificationStream =
     StreamController<String?>.broadcast();
 
-const MethodChannel platform =
-    MethodChannel('dexterx.dev/flutter_local_notifications_example');
+const MethodChannel platform = MethodChannel(
+  'dexterx.dev/flutter_local_notifications_example',
+);
 
 const String portName = 'notification_send_port';
 
@@ -59,21 +60,25 @@ const String darwinNotificationCategoryPlain = 'plainCategory';
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
   // ignore: avoid_print
-  print('notification(${notificationResponse.id}) action tapped: '
-      '${notificationResponse.actionId} with'
-      ' payload: ${notificationResponse.payload}');
+  print(
+    'notification(${notificationResponse.id}) action tapped: '
+    '${notificationResponse.actionId} with'
+    ' payload: ${notificationResponse.payload}',
+  );
   if (notificationResponse.input?.isNotEmpty ?? false) {
     // ignore: avoid_print
     print(
-        'notification action tapped with input: ${notificationResponse.input}');
+      'notification action tapped with input: ${notificationResponse.input}',
+    );
   }
 }
 
 Future<void> flutterLocalNotificationInitialize() async {
-  final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
-          Platform.isLinux
-      ? null
-      : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+      !kIsWeb && Platform.isLinux
+          ? null
+          : await flutterLocalNotificationsPlugin
+              .getNotificationAppLaunchDetails();
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
     selectedNotificationPayload =
         notificationAppLaunchDetails!.notificationResponse?.payload;
@@ -84,74 +89,74 @@ Future<void> flutterLocalNotificationInitialize() async {
 
   final List<DarwinNotificationCategory> darwinNotificationCategories =
       <DarwinNotificationCategory>[
-    DarwinNotificationCategory(
-      darwinNotificationCategoryText,
-      actions: <DarwinNotificationAction>[
-        DarwinNotificationAction.text(
-          'text_1',
-          'Action 1',
-          buttonTitle: 'Send',
-          placeholder: 'Placeholder',
+        DarwinNotificationCategory(
+          darwinNotificationCategoryText,
+          actions: <DarwinNotificationAction>[
+            DarwinNotificationAction.text(
+              'text_1',
+              'Action 1',
+              buttonTitle: 'Send',
+              placeholder: 'Placeholder',
+            ),
+          ],
         ),
-      ],
-    ),
-    DarwinNotificationCategory(
-      darwinNotificationCategoryPlain,
-      actions: <DarwinNotificationAction>[
-        DarwinNotificationAction.plain('id_1', 'Action 1'),
-        DarwinNotificationAction.plain(
-          'id_2',
-          'Action 2 (destructive)',
-          options: <DarwinNotificationActionOption>{
-            DarwinNotificationActionOption.destructive,
+        DarwinNotificationCategory(
+          darwinNotificationCategoryPlain,
+          actions: <DarwinNotificationAction>[
+            DarwinNotificationAction.plain('id_1', 'Action 1'),
+            DarwinNotificationAction.plain(
+              'id_2',
+              'Action 2 (destructive)',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.destructive,
+              },
+            ),
+            DarwinNotificationAction.plain(
+              navigationActionId,
+              'Action 3 (foreground)',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.foreground,
+              },
+            ),
+            DarwinNotificationAction.plain(
+              'id_4',
+              'Action 4 (auth required)',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.authenticationRequired,
+              },
+            ),
+          ],
+          options: <DarwinNotificationCategoryOption>{
+            DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
           },
         ),
-        DarwinNotificationAction.plain(
-          navigationActionId,
-          'Action 3 (foreground)',
-          options: <DarwinNotificationActionOption>{
-            DarwinNotificationActionOption.foreground,
-          },
-        ),
-        DarwinNotificationAction.plain(
-          'id_4',
-          'Action 4 (auth required)',
-          options: <DarwinNotificationActionOption>{
-            DarwinNotificationActionOption.authenticationRequired,
-          },
-        ),
-      ],
-      options: <DarwinNotificationCategoryOption>{
-        DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
-      },
-    )
-  ];
+      ];
 
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
   final DarwinInitializationSettings initializationSettingsDarwin =
       DarwinInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
-    onDidReceiveLocalNotification:
-        (int id, String? title, String? body, String? payload) async {
-      didReceiveLocalNotificationStream.add(
-        ReceivedNotification(
-          id: id,
-          title: title,
-          body: body,
-          payload: payload,
-        ),
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+        // onDidReceiveLocalNotification:
+        //     (int id, String? title, String? body, String? payload) async {
+        //   didReceiveLocalNotificationStream.add(
+        //     ReceivedNotification(
+        //       id: id,
+        //       title: title,
+        //       body: body,
+        //       payload: payload,
+        //     ),
+        //   );
+        // },
+        notificationCategories: darwinNotificationCategories,
       );
-    },
-    notificationCategories: darwinNotificationCategories,
-  );
   final LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(
-    defaultActionName: 'Open notification',
-    defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
-  );
+        defaultActionName: 'Open notification',
+        defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
+      );
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
     iOS: initializationSettingsDarwin,
@@ -167,8 +172,9 @@ Future<void> flutterLocalNotificationInitialize() async {
   );
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-    onDidReceiveNotificationResponse:
-        (NotificationResponse notificationResponse) {
+    onDidReceiveNotificationResponse: (
+      NotificationResponse notificationResponse,
+    ) {
       switch (notificationResponse.notificationResponseType) {
         case NotificationResponseType.selectedNotification:
           selectNotificationStream.add(notificationResponse.payload);
@@ -186,16 +192,24 @@ Future<void> flutterLocalNotificationInitialize() async {
 
 Future<void> _showNotification(String fileName) async {
   const AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails('your channel id', 'your channel name',
-          channelDescription: 'your channel description',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker');
-  const NotificationDetails notificationDetails =
-      NotificationDetails(android: androidNotificationDetails);
-  await flutterLocalNotificationsPlugin.show(id++, 'Message',
-      'Download $fileName file completed!', notificationDetails,
-      payload: 'item x');
+      AndroidNotificationDetails(
+        'your channel id',
+        'your channel name',
+        channelDescription: 'your channel description',
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+      );
+  const NotificationDetails notificationDetails = NotificationDetails(
+    android: androidNotificationDetails,
+  );
+  await flutterLocalNotificationsPlugin.show(
+    id++,
+    'Message',
+    'Download $fileName file completed!',
+    notificationDetails,
+    payload: 'item x',
+  );
 }
 
 void main() async {
@@ -263,12 +277,13 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           currentMaxLineValue = media;
         }
       }
-      listMedias = listData
-          .split('\n')
-          .where(
-            (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
-          )
-          .toList();
+      listMedias =
+          listData
+              .split('\n')
+              .where(
+                (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
+              )
+              .toList();
       var indexLine = listMedias.indexOf(currentMaxLineValue);
       request = await httpClient.getUrl(Uri.parse(listMedias[indexLine + 1]));
       if (referer != null && referer.isNotEmpty) {
@@ -402,9 +417,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               String.fromCharCodes(await request.first),
             );
             var data = requestBody.last;
-            if (requestBody.any((e) =>
-                e['contenttype'] == 'application/vnd.apple.mpegurl' &&
-                e['url'].toString().contains('master.m3u8') == false)) {
+            if (requestBody.any(
+              (e) =>
+                  e['contenttype'] == 'application/vnd.apple.mpegurl' &&
+                  e['url'].toString().contains('master.m3u8') == false,
+            )) {
               data = requestBody.firstWhere(
                 (e) =>
                     e['contenttype'] == 'application/vnd.apple.mpegurl' &&
@@ -413,10 +430,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             }
             await windowManager.show();
             await windowManager.focus();
-            openDialogAndGetData(
-              url: data['url'],
-              referer: data['initiator'],
-            );
+            openDialogAndGetData(url: data['url'], referer: data['initiator']);
             break;
           default:
             request.response.statusCode = HttpStatus.methodNotAllowed;
@@ -449,22 +463,23 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 DataColumn(label: Text('Status')),
                 DataColumn(label: Text('...')),
               ],
-              rows: dataDownloadQueues
-                  .map(
-                    (e) => DataRow(
-                      cells: [
-                        DataCell(Text("${e.path}")),
-                        DataCell(Text("${doubleToString(e.size)} KB")),
-                        DataCell(Text("${e.status}")),
-                        DataCell(
-                          Text(
-                            "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
-                          ),
+              rows:
+                  dataDownloadQueues
+                      .map(
+                        (e) => DataRow(
+                          cells: [
+                            DataCell(Text("${e.path}")),
+                            DataCell(Text("${doubleToString(e.size)} KB")),
+                            DataCell(Text("${e.status}")),
+                            DataCell(
+                              Text(
+                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB",
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-                  .toList(),
+                      )
+                      .toList(),
             ),
           ],
         ),
