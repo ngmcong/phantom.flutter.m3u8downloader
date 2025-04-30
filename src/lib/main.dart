@@ -295,6 +295,18 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     return listData;
   }
 
+  String validUrl(String baseAddress, String url) {
+    int minCheckLength = 50;
+    if (url.length > minCheckLength && url.contains('/')) {
+      var startUrl = url.substring(0, minCheckLength);
+      if (baseAddress.contains(startUrl)) {
+        var startIndex = baseAddress.indexOf(startUrl);
+        return baseAddress.substring(0, startIndex) + url;
+      }
+    }
+    return "$baseAddress/$url";
+  }
+
   void downloadFile({String? referer}) async {
     setState(() {
       downloading!.status = Status.downloading;
@@ -321,28 +333,27 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         var urlList = listData
             .split('\n')
             .where((e) => e.startsWith('#EXT') == false && e.isNotEmpty);
+        var baseAddress = downloading!.url!.substring(
+          0,
+          downloading!.url!.lastIndexOf('/'),
+        );
         if (urlList.any((e) => e.startsWith("https://") == false)) {
-          var baseAddress = downloading!.url!.substring(
-            0,
-            downloading!.url!.lastIndexOf('/'),
-          );
           urlList = urlList.map(
-            (e) => e.startsWith('https://') ? e : "$baseAddress/$e",
+            (e) => e.startsWith('https://') ? e : validUrl(baseAddress, e),
           );
         }
         urls.clear();
         urls.addAll(urlList);
+        if (listData.contains('#EXT-X-MAP:URI=')) {
+          var mapUrl = listData.split('#EXT-X-MAP:URI=')[1].split('"')[1];
+          urls.insert(0, validUrl(baseAddress, mapUrl));
+        }
       }
     }
     bool isFirstTime = true;
     downloading!.downloadedSize = 0;
     double prvDownloadSize = 0;
     try {
-      if (urls.any((element) => element.endsWith('.m4s'))) {
-        throw Exception(
-          "This file is not supported. Please use the latest version of the app.",
-        );
-      }
       double part = 0;
       for (var url in urls) {
         request = await httpClient.getUrl(Uri.parse(url));
