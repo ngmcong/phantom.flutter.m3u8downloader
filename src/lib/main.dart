@@ -469,30 +469,35 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                 ),
               ],
             ),
-            DataTable(
-              columns: const [
-                DataColumn(label: Text('Path')),
-                DataColumn(label: Text('Size')),
-                DataColumn(label: Text('Status')),
-                DataColumn(label: Text('...')),
-              ],
-              rows:
-                  dataDownloadQueues
-                      .map(
-                        (e) => DataRow(
-                          cells: [
-                            DataCell(Text("${e.path}")),
-                            DataCell(Text("${doubleToString(e.size)} KB")),
-                            DataCell(Text("${e.status}")),
-                            DataCell(
-                              Text(
-                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
-                              ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Path')),
+                    DataColumn(label: Text('Size')),
+                    DataColumn(label: Text('Status')),
+                    DataColumn(label: Text('...')),
+                  ],
+                  rows:
+                      dataDownloadQueues
+                          .map(
+                            (e) => DataRow(
+                              cells: [
+                                DataCell(Text("${e.path}")),
+                                DataCell(Text("${doubleToString(e.size)} KB")),
+                                DataCell(Text("${e.status}")),
+                                DataCell(
+                                  Text(
+                                    "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      )
-                      .toList(),
+                          )
+                          .toList(),
+                ),
+              ),
             ),
           ],
         ),
