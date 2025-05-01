@@ -20,8 +20,15 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   if (url != null && url.isNotEmpty) {
     txtUrl.text = url;
   }
-  var urlParts = url!.split('.');
-  var extension = urlParts.take(urlParts.length - 1).last;
+  txtSaveFilePath.text = '';
+  var extension = '';
+  var urlParts = url?.split('.');
+  if (urlParts?.isNotEmpty == true) {
+    if (urlParts!.last == "m3u8") {
+      urlParts = urlParts.take(urlParts.length - 1).toList();
+    }
+    extension = ".${urlParts.last}";
+  }
   return await showDialog<DataDownloadQueue?>(
     context: context,
     builder: (context) {
@@ -65,8 +72,8 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                           dialogTitle: 'Save Your File to desired location',
                           fileName:
                               title == null
-                                  ? "video.$extension"
-                                  : "$title.$extension",
+                                  ? "video$extension"
+                                  : "$title$extension",
                         );
                         txtSaveFilePath.text = outputFile ?? "";
                       },
