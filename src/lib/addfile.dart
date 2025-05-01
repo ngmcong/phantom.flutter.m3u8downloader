@@ -15,10 +15,13 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   BuildContext context, {
   String? url,
   String? referer,
+  String? title,
 }) async {
   if (url != null && url.isNotEmpty) {
     txtUrl.text = url;
   }
+  var urlParts = url!.split('.');
+  var extension = urlParts.take(urlParts.length - 1).last;
   return await showDialog<DataDownloadQueue?>(
     context: context,
     builder: (context) {
@@ -60,7 +63,10 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       onPressed: () async {
                         String? outputFile = await FilePicker.platform.saveFile(
                           dialogTitle: 'Save Your File to desired location',
-                          fileName: "",
+                          fileName:
+                              title == null
+                                  ? "video.$extension"
+                                  : "$title.$extension",
                         );
                         txtSaveFilePath.text = outputFile ?? "";
                       },

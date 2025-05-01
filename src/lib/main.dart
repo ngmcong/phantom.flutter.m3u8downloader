@@ -404,11 +404,16 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     }
   }
 
-  void openDialogAndGetData({String? url, String? referer}) async {
+  void openDialogAndGetData({
+    String? url,
+    String? referer,
+    String? title,
+  }) async {
     var dialogVal = await addFileDialogBuilder(
       context,
       url: url,
       referer: referer,
+      title: title,
     );
     if (dialogVal == null) return;
     setState(() {
@@ -443,7 +448,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             }
             await windowManager.show();
             await windowManager.focus();
-            openDialogAndGetData(url: data['url'], referer: data['initiator']);
+            openDialogAndGetData(
+              url: data['url'],
+              referer: data['initiator'],
+              title: data['title'],
+            );
             break;
           default:
             request.response.statusCode = HttpStatus.methodNotAllowed;
