@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,9 +10,20 @@ String doubleToString(double? value) {
   return NumberFormat("###,###", "en_US").format(value ?? 0);
 }
 
+String stringBase64Decode(String? value) {
+  if (value == null || value.isEmpty) return "";
+  // Decode the Base64 string to a List<int> (bytes)
+  List<int> decodedBytes = base64Decode(value);
+
+  // Convert the bytes to a UTF-8 string (most common encoding)
+  String decodedString = utf8.decode(decodedBytes);
+  return decodedString;
+}
+
 var txtUrl = TextEditingController();
 var txtSaveFilePath = TextEditingController();
 double? fileSize;
+List<String?>? filterTitle;
 Future<DataDownloadQueue?> addFileDialogBuilder(
   BuildContext context, {
   String? url,
@@ -28,6 +41,14 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
       urlParts = urlParts.take(urlParts.length - 1).toList();
     }
     extension = ".${urlParts.last}";
+  }
+  filterTitle ??= [stringBase64Decode("IHwgeEhhbXN0ZXI=")];
+  if (title != null && title.isNotEmpty) {
+    for (var filter in filterTitle!) {
+      if (title!.contains(filter!)) {
+        title = title.replaceAll(filter, "");
+      }
+    }
   }
   return await showDialog<DataDownloadQueue?>(
     context: context,
