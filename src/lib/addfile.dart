@@ -115,6 +115,15 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                 ),
                 TextButton(
                   onPressed: () async {
+                    if (txtSaveFilePath.text.isEmpty) {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select your save file'),
+                        ),
+                      );
+                      return;
+                    }
                     var headUrl = await http.head(
                       Uri.parse(txtUrl.text),
                       headers: <String, String>{'Referer': referer ?? ""},
