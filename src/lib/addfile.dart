@@ -24,6 +24,7 @@ var txtUrl = TextEditingController();
 var txtSaveFilePath = TextEditingController();
 double? fileSize;
 List<String?>? filterTitle;
+
 Future<DataDownloadQueue?> addFileDialogBuilder(
   BuildContext context, {
   String? url,
@@ -42,12 +43,24 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
     }
     extension = ".${urlParts.last}";
   }
+  if (extension != ".mp4") {
+    extension = "";
+  }
   filterTitle ??= [stringBase64Decode("IHwgeEhhbXN0ZXI=")];
   if (title != null && title.isNotEmpty) {
     for (var filter in filterTitle!) {
       if (title!.contains(filter!)) {
         title = title.replaceAll(filter, "");
       }
+    }
+    RegExp pattern = RegExp(
+      r'\[([A-Z]*-\d*)\]*',
+    ); // Matches words starting with 'o'
+    Match? match = pattern.firstMatch(title!);
+    String? extractedCode = match?.group(1)!;
+    if (extractedCode != null && extractedCode.isNotEmpty) {
+      title = extractedCode;
+      extension = ".ts";
     }
   }
   return await showDialog<DataDownloadQueue?>(
@@ -82,7 +95,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                         controller: txtSaveFilePath,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          hintText: 'Input your url',
+                          hintText: 'Input file path',
                         ),
                         readOnly: true,
                       ),
