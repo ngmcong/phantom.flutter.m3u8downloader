@@ -498,7 +498,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                                 DataCell(Text("${e.status}")),
                                 DataCell(
                                   Text(
-                                    "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
+                                    "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${(e.currentOffset / e.numberOfOffset.toDouble()).ceil()} %)",
                                   ),
                                 ),
                               ],
