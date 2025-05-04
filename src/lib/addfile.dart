@@ -24,6 +24,7 @@ var txtUrl = TextEditingController();
 var txtSaveFilePath = TextEditingController();
 double? fileSize;
 List<String?>? filterTitle;
+final FocusNode _textFieldFocusNode = FocusNode();
 
 Future<DataDownloadQueue?> addFileDialogBuilder(
   BuildContext context, {
@@ -66,6 +67,9 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   return await showDialog<DataDownloadQueue?>(
     context: context,
     builder: (context) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FocusScope.of(context).requestFocus(_textFieldFocusNode);
+      });
       return AlertDialog(
         title: const Text('Download file info'),
         content: StatefulBuilder(
@@ -79,6 +83,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                     Expanded(
                       child: TextField(
                         controller: txtUrl,
+                        focusNode: _textFieldFocusNode, // Ensure this is here
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Input your url',
