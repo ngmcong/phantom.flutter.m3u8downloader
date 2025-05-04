@@ -487,7 +487,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                     DataColumn(label: Text('Size')),
                     DataColumn(label: Text('Status')),
                     DataColumn(label: Text('...')),
-                    DataColumn(label: Text('%')),
                   ],
                   rows:
                       dataDownloadQueues
@@ -500,11 +499,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                                 DataCell(
                                   Text(
                                     "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${(e.currentOffset / e.numberOfOffset.toDouble()).ceil()}',
                                   ),
                                 ),
                               ],
