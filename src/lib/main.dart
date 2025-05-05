@@ -408,12 +408,14 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     String? url,
     String? referer,
     String? title,
+    String? tag,
   }) async {
     var dialogVal = await addFileDialogBuilder(
       context,
       url: url,
       referer: referer,
       title: title,
+      tag: tag,
     );
     if (dialogVal == null) return;
     setState(() {
@@ -448,10 +450,14 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             }
             await windowManager.show();
             await windowManager.focus();
+            if (kDebugMode) {
+              print('page = ${data['url']}');
+            }
             openDialogAndGetData(
               url: data['url'],
               referer: data['initiator'],
               title: data['title'],
+              tag: data['url'],
             );
             break;
           default:

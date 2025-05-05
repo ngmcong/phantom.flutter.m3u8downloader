@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:m3u8downloader/dataentities.dart';
@@ -31,6 +32,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   String? url,
   String? referer,
   String? title,
+  String? tag,
 }) async {
   if (url != null && url.isNotEmpty) {
     txtUrl.text = url;
@@ -54,12 +56,18 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
         title = title.replaceAll(filter, "");
       }
     }
-    RegExp pattern = RegExp(
-      r'\[([A-Z]*-\d*)\]*',
-    ); // Matches words starting with 'o'
+    RegExp pattern = RegExp(r'\[([A-Z]*-\d*)\]*');
     Match? match = pattern.firstMatch(title!);
     String? extractedCode = match?.group(1)!;
-    if (extractedCode != null && extractedCode.isNotEmpty) {
+    if (tag?.isNotEmpty == true && extractedCode?.isNotEmpty != true) {
+      pattern = RegExp(r'tag=(\w*-\d{3,})*');
+      match = pattern.firstMatch(tag!);
+      extractedCode = match?.group(1)!;
+    }
+    if (kDebugMode) {
+      print('found in tag $tag: $extractedCode');
+    }
+    if (extractedCode?.isNotEmpty == true) {
       title = extractedCode;
       extension = ".ts";
     }
