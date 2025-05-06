@@ -457,7 +457,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               url: data['url'],
               referer: data['initiator'],
               title: data['title'],
-              tag: data['url'],
+              tag: data['page'],
             );
             break;
           default:
