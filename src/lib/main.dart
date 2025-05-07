@@ -394,6 +394,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     } catch (ex) {
       setState(() {
         downloading!.status = Status.downloadCompleted;
+        var file = File(downloading!.path!);
+        if (file.existsSync()) file.deleteSync();
         checkDownload();
       });
       if (mounted) {
