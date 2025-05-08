@@ -356,6 +356,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     try {
       downloading!.numberOfOffset = urls.length;
       int part = 0;
+      int retryl = 0;
       for (var url in urls) {
         request = await httpClient.getUrl(Uri.parse(url));
         if (referer != null && referer.isNotEmpty) {
@@ -366,6 +367,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
+            if ((retryl % 5) != 0) {
+              retryl++;
+              return;
+            }
+            retryl = 0;
             setState(() {
               downloading!.currentOffset = part;
               downloading!.downloadedSize =
@@ -385,6 +391,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           mode: isFirstTime ? FileMode.write : FileMode.append,
         );
         isFirstTime = false;
+        // Introduce a delay between requests (adjust the duration as needed)
+        await Future.delayed(const Duration(milliseconds: 1000));
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
