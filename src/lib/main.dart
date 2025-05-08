@@ -426,6 +426,13 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     });
   }
 
+  bool checkM3U8ContentType(String contenttype) {
+    if (contenttype.contains('application/vnd.apple.mpegurl')) return true;
+    if (contenttype.contains('application/x-mpegurl')) return true;
+    if (contenttype.contains('m3u8')) return true;
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -441,12 +448,12 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             var data = requestBody.last;
             if (requestBody.any(
               (e) =>
-                  e['contenttype'] == 'application/vnd.apple.mpegurl' &&
+                  checkM3U8ContentType(e['contenttype'].toString()) &&
                   e['url'].toString().contains('master.m3u8') == false,
             )) {
               data = requestBody.firstWhere(
                 (e) =>
-                    e['contenttype'] == 'application/vnd.apple.mpegurl' &&
+                    checkM3U8ContentType(e['contenttype'].toString()) &&
                     e['url'].toString().contains('master.m3u8') == false,
               );
             }

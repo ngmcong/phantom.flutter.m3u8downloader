@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -49,7 +50,10 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   if (extension != ".mp4") {
     extension = "";
   }
-  filterTitle ??= [stringBase64Decode("IHwgeEhhbXN0ZXI=")];
+  File file = File('/Users/phantom/Downloads/filtertitlefilenames.txt');
+  if (filterTitle == null && file.existsSync()) {
+    filterTitle ??= file.readAsStringSync().split('\n');
+  }
   if (title != null && title.isNotEmpty) {
     for (var filter in filterTitle!) {
       if (title!.contains(filter!)) {
@@ -58,7 +62,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
     }
     RegExp pattern = RegExp(r'\[([A-Z]*-\d*)\]*');
     Match? match = pattern.firstMatch(title!);
-    String? extractedCode = match?.group(1)!;
+    String? extractedCode = match?.group(1);
     if (tag?.isNotEmpty == true && extractedCode?.isNotEmpty != true) {
       pattern = RegExp(r'tag=(\w*-\d{3,})*');
       match = pattern.firstMatch(tag!);
