@@ -392,7 +392,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         );
         isFirstTime = false;
         // Introduce a delay between requests (adjust the duration as needed)
-        await Future.delayed(const Duration(milliseconds: 1000));
+        // await Future.delayed(const Duration(milliseconds: 300));
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
