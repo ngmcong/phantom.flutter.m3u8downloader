@@ -50,7 +50,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   if (extension != ".mp4") {
     extension = "";
   }
-  File file = File('/Users/phantom/Downloads/filtertitlefilenames.txt');
+  File file = File('/Volumes/SSD/filtertitlefilenames.txt');
   if (filterTitle == null && file.existsSync()) {
     filterTitle ??= file.readAsStringSync().split('\n');
   }
