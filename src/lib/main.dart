@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:m3u8downloader/addfile.dart';
 import 'package:m3u8downloader/dataentities.dart';
+import 'package:macos_dock_progress/macos_dock_progress.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:path/path.dart' as path;
 
@@ -364,10 +365,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         }
         var response = await request.close();
         part++;
-        // await DockProgress.setProgress(part / downloading!.numberOfOffset);
-        // if (kDebugMode) {
-        //   print('progress: ${part / downloading!.numberOfOffset}');
-        // }
+        await DockProgress.setProgress(part / downloading!.numberOfOffset);
+        if (kDebugMode) {
+          print('progress: ${part / downloading!.numberOfOffset}');
+        }
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
@@ -398,7 +399,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         // Introduce a delay between requests (adjust the duration as needed)
         // await Future.delayed(const Duration(milliseconds: 300));
       }
-      // await DockProgress.resetProgress();
+      await DockProgress.resetProgress();
       setState(() {
         downloading!.status = Status.downloadCompleted;
         _showNotification(path.basenameWithoutExtension(downloading!.path!));
