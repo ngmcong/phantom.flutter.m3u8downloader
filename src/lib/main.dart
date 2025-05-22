@@ -358,6 +358,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       downloading!.numberOfOffset = urls.length;
       int part = 0;
       int retryl = 0;
+      DockProgress.changeStyle(ProgressBarStyle.bar());
       for (var url in urls) {
         request = await httpClient.getUrl(Uri.parse(url));
         if (referer != null && referer.isNotEmpty) {
@@ -365,10 +366,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         }
         var response = await request.close();
         part++;
-        await DockProgress.setProgress(part / downloading!.numberOfOffset);
-        if (kDebugMode) {
-          print('progress: ${part / downloading!.numberOfOffset}');
-        }
+        DockProgress.setProgress(part / downloading!.numberOfOffset);
+        // if (kDebugMode) {
+        //   print('progress: ${part / downloading!.numberOfOffset}');
+        // }
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
@@ -399,7 +400,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         // Introduce a delay between requests (adjust the duration as needed)
         // await Future.delayed(const Duration(milliseconds: 300));
       }
-      await DockProgress.resetProgress();
       setState(() {
         downloading!.status = Status.downloadCompleted;
         _showNotification(path.basenameWithoutExtension(downloading!.path!));
@@ -417,6 +417,9 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           context,
         ).showSnackBar(SnackBar(content: Text(ex.toString())));
       }
+    } finally {
+      DockProgress.changeStyle(ProgressBarStyle.squircle());
+      DockProgress.resetProgress();
     }
   }
 
