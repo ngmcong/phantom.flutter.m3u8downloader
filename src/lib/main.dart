@@ -216,7 +216,9 @@ Future<void> _showNotification(String fileName) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  await flutterLocalNotificationInitialize();
+  if (!Platform.isWindows) {
+    await flutterLocalNotificationInitialize();
+  }
   runApp(const M3U8DownloaderApp());
 }
 

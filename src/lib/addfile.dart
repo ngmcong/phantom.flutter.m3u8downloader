@@ -24,6 +24,7 @@ String stringBase64Decode(String? value) {
 
 var txtUrl = TextEditingController();
 var txtSaveFilePath = TextEditingController();
+var txtReferer = TextEditingController();
 double? fileSize;
 List<String?>? filterTitle;
 final FocusNode _textFieldFocusNode = FocusNode();
@@ -139,6 +140,20 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                 ),
                 Row(
                   children: [
+                    const SizedBox(width: 60, child: Text('Referer:')),
+                    Expanded(
+                      child: TextField(
+                        controller: txtReferer,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Input your url referer',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
                     const SizedBox(width: 60, child: Text('File size:')),
                     Text("${doubleToString(fileSize)} KB"),
                   ],
@@ -154,8 +169,11 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       );
                       return;
                     }
+                    if (referer?.isNotEmpty != true && txtReferer.text.isNotEmpty) {
+                      referer = txtReferer.text.trim();
+                    }
                     var headUrl = await http.head(
-                      Uri.parse(txtUrl.text),
+                      Uri.parse(txtUrl.text.trim()),
                       headers: <String, String>{'Referer': referer ?? ""},
                     );
                     var contentLength = double.parse(
