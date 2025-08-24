@@ -191,7 +191,7 @@ Future<void> flutterLocalNotificationInitialize() async {
   );
 }
 
-Future<void> _showNotification(String fileName) async {
+Future<void> _showNotification(String message) async {
   const AndroidNotificationDetails androidNotificationDetails =
       AndroidNotificationDetails(
         'your channel id',
@@ -207,7 +207,7 @@ Future<void> _showNotification(String fileName) async {
   await flutterLocalNotificationsPlugin.show(
     id++,
     'Message',
-    'Download $fileName file completed!',
+    message,
     notificationDetails,
     payload: 'item x',
   );
@@ -249,7 +249,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
 
   void checkDownload() async {
     if ((downloading == null ||
-            downloading?.status == Status.downloadCompleted) &&
+            downloading?.status == Status.downloadCompleted ||
+            downloading?.status == Status.error) &&
         dataDownloadQueues.any((c) => c.status == Status.none)) {
       downloading = dataDownloadQueues.firstWhere(
         (c) => c.status == Status.none,
@@ -264,21 +265,27 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     HttpClientRequest request,
     String? referer,
   ) async {
-    if (listData.contains('RESOLUTION=')) {
+    if (listData.contains('BANDWIDTH=')) {
       var listMedias =
-          listData.split('\n').where((e) => e.contains("RESOLUTION=")).toList();
-      var intRegex = RegExp(r'RESOLUTION=(\d+x\d+)', multiLine: false);
-      String maxRegValue = '';
+          listData.split('\n').where((e) => e.contains("BANDWIDTH=")).toList();
+      var intRegex = RegExp(r'BANDWIDTH=(\d+)', multiLine: false);
+      int maxRegValue = 0;
       String currentMaxLineValue = '';
       for (var media in listMedias) {
         var matches = intRegex.allMatches(media).map((m) => m.group(1));
-        var math = matches.first ?? '';
+        var math = int.parse(matches.first ?? '0');
         var testArray = [maxRegValue, math];
         testArray.sort();
+        if (kDebugMode) {
+          print('Test Array: $testArray');
+        }
         if (testArray[1] == math) {
           maxRegValue = math;
           currentMaxLineValue = media;
         }
+      }
+      if (kDebugMode) {
+        print('Max Resolution: $maxRegValue');
       }
       listMedias =
           listData
@@ -288,7 +295,11 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               )
               .toList();
       var indexLine = listMedias.indexOf(currentMaxLineValue);
-      request = await httpClient.getUrl(Uri.parse(listMedias[indexLine + 1]));
+      var dataUrl = listMedias[indexLine + 1];
+      if (kDebugMode) {
+        print('Data URL: $dataUrl');
+      }
+      request = await httpClient.getUrl(Uri.parse(dataUrl));
       if (referer != null && referer.isNotEmpty) {
         request.headers.set("Referer", referer);
       }
@@ -404,12 +415,14 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
-        _showNotification(path.basenameWithoutExtension(downloading!.path!));
+        var message =
+            'Download ${path.basenameWithoutExtension(downloading!.path!)} file completed!';
+        _showNotification(message);
         checkDownload();
       });
     } catch (ex) {
       setState(() {
-        downloading!.status = Status.downloadCompleted;
+        downloading!.status = Status.error;
         var file = File(downloading!.path!);
         if (file.existsSync()) file.deleteSync();
         checkDownload();
@@ -419,6 +432,9 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           context,
         ).showSnackBar(SnackBar(content: Text(ex.toString())));
       }
+      var message =
+          'Download ${path.basenameWithoutExtension(downloading!.path!)} file get error!';
+      _showNotification(message);
     } finally {
       DockProgress.changeStyle(ProgressBarStyle.squircle());
       DockProgress.resetProgress();

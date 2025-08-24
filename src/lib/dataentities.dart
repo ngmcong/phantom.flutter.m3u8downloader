@@ -1,4 +1,4 @@
-enum Status { none, downloading, downloadCompleted }
+enum Status { none, downloading, downloadCompleted, error }
 
 class DataDownloadQueue {
   String? path;
