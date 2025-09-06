@@ -20,4 +20,6 @@ List<String> validTypes = [
   'application/x-mpegurl',
   'application/x-mpegurl; charset=utf-8',
   'text/html; charset=utf-8',
+  'audio/mpegurl',
+  'text/plain',
 ];

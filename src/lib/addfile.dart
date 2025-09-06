@@ -169,7 +169,8 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       );
                       return;
                     }
-                    if (referer?.isNotEmpty != true && txtReferer.text.isNotEmpty) {
+                    if (referer?.isNotEmpty != true &&
+                        txtReferer.text.isNotEmpty) {
                       referer = txtReferer.text.trim();
                     }
                     var headUrl = await http.head(
