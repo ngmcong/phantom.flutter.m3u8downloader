@@ -321,6 +321,26 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     return "$baseAddress/$url";
   }
 
+  Future<HttpClientResponse> downloadPage(
+    HttpClient httpClient,
+    Uri uri,
+    String? referer, {
+    bool? isCanRetry = false,
+  }) async {
+    try {
+      var request = await httpClient.getUrl(uri);
+      if (referer != null && referer.isNotEmpty) {
+        request.headers.set("Referer", referer);
+      }
+      return await request.close();
+    } catch (ex) {
+      if (isCanRetry == true) {
+        return await downloadPage(httpClient, uri, referer, isCanRetry: false);
+      }
+      rethrow;
+    }
+  }
+
   void downloadFile({String? referer}) async {
     setState(() {
       downloading!.status = Status.downloading;
@@ -373,16 +393,15 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       int retryl = 0;
       DockProgress.changeStyle(ProgressBarStyle.bar());
       for (var url in urls) {
-        request = await httpClient.getUrl(Uri.parse(url));
-        if (referer != null && referer.isNotEmpty) {
-          request.headers.set("Referer", referer);
-        }
-        var response = await request.close();
+        HttpClientResponse? response;
+        response = await downloadPage(
+          httpClient,
+          Uri.parse(url),
+          referer,
+          isCanRetry: true,
+        );
         part++;
         DockProgress.setProgress(part / downloading!.numberOfOffset);
-        // if (kDebugMode) {
-        //   print('progress: ${part / downloading!.numberOfOffset}');
-        // }
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
