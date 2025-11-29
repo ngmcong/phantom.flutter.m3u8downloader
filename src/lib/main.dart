@@ -77,9 +77,8 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 Future<void> flutterLocalNotificationInitialize() async {
   final NotificationAppLaunchDetails? notificationAppLaunchDetails =
       !kIsWeb && Platform.isLinux
-          ? null
-          : await flutterLocalNotificationsPlugin
-              .getNotificationAppLaunchDetails();
+      ? null
+      : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
     selectedNotificationPayload =
         notificationAppLaunchDetails!.notificationResponse?.payload;
@@ -173,20 +172,19 @@ Future<void> flutterLocalNotificationInitialize() async {
   );
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-    onDidReceiveNotificationResponse: (
-      NotificationResponse notificationResponse,
-    ) {
-      switch (notificationResponse.notificationResponseType) {
-        case NotificationResponseType.selectedNotification:
-          selectNotificationStream.add(notificationResponse.payload);
-          break;
-        case NotificationResponseType.selectedNotificationAction:
-          if (notificationResponse.actionId == navigationActionId) {
-            selectNotificationStream.add(notificationResponse.payload);
+    onDidReceiveNotificationResponse:
+        (NotificationResponse notificationResponse) {
+          switch (notificationResponse.notificationResponseType) {
+            case NotificationResponseType.selectedNotification:
+              selectNotificationStream.add(notificationResponse.payload);
+              break;
+            case NotificationResponseType.selectedNotificationAction:
+              if (notificationResponse.actionId == navigationActionId) {
+                selectNotificationStream.add(notificationResponse.payload);
+              }
+              break;
           }
-          break;
-      }
-    },
+        },
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
 }
@@ -266,8 +264,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     String? referer,
   ) async {
     if (listData.contains('BANDWIDTH=')) {
-      var listMedias =
-          listData.split('\n').where((e) => e.contains("BANDWIDTH=")).toList();
+      var listMedias = listData
+          .split('\n')
+          .where((e) => e.contains("BANDWIDTH="))
+          .toList();
       var intRegex = RegExp(r'BANDWIDTH=(\d+)', multiLine: false);
       int maxRegValue = 0;
       String currentMaxLineValue = '';
@@ -287,13 +287,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       if (kDebugMode) {
         print('Max Resolution: $maxRegValue');
       }
-      listMedias =
-          listData
-              .split('\n')
-              .where(
-                (e) => e.startsWith("https://") || e.contains("RESOLUTION="),
-              )
-              .toList();
+      listMedias = listData
+          .split('\n')
+          .where((e) => e.startsWith("https://") || e.contains("RESOLUTION="))
+          .toList();
       var indexLine = listMedias.indexOf(currentMaxLineValue);
       var dataUrl = listMedias[indexLine + 1];
       if (kDebugMode) {
@@ -505,7 +502,21 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                   checkM3U8ContentType(e['contenttype'].toString()) &&
                   e['url'].toString().contains('master.m3u8') == false,
             )) {
-              data = requestBody.firstWhere(
+              if (requestBody.any(
+                (e) =>
+                    checkM3U8ContentType(e['contenttype'].toString()) &&
+                    e['url'].toString().contains('1080') == true,
+              )) {
+                data = requestBody.lastWhere(
+                  (e) =>
+                      checkM3U8ContentType(e['contenttype'].toString()) &&
+                      e['url'].toString().contains('1080') == true,
+                );
+              }
+              if (kDebugMode) {
+                print(requestBody);
+              }
+              data ??= requestBody.firstWhere(
                 (e) =>
                     checkM3U8ContentType(e['contenttype'].toString()) &&
                     e['url'].toString().contains('master.m3u8') == false,
@@ -557,23 +568,22 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                     DataColumn(label: Text('Status')),
                     DataColumn(label: Text('...')),
                   ],
-                  rows:
-                      dataDownloadQueues
-                          .map(
-                            (e) => DataRow(
-                              cells: [
-                                DataCell(Text("${e.path}")),
-                                DataCell(Text("${doubleToString(e.size)} KB")),
-                                DataCell(Text("${e.status}")),
-                                DataCell(
-                                  Text(
-                                    "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
-                                  ),
-                                ),
-                              ],
+                  rows: dataDownloadQueues
+                      .map(
+                        (e) => DataRow(
+                          cells: [
+                            DataCell(Text("${e.path}")),
+                            DataCell(Text("${doubleToString(e.size)} KB")),
+                            DataCell(Text("${e.status}")),
+                            DataCell(
+                              Text(
+                                "${doubleToString(e.downloadedSize)}/${doubleToString(e.size)} KB (${e.currentOffset}/${e.numberOfOffset})",
+                              ),
                             ),
-                          )
-                          .toList(),
+                          ],
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
             ),
