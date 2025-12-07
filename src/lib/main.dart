@@ -513,9 +513,6 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                       e['url'].toString().contains('1080') == true,
                 );
               }
-              if (kDebugMode) {
-                print(requestBody);
-              }
               data ??= requestBody.firstWhere(
                 (e) =>
                     checkM3U8ContentType(e['contenttype'].toString()) &&
@@ -524,6 +521,80 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
             }
             await windowManager.show();
             await windowManager.focus();
+
+            if (requestBody.length > 1) {
+              if (kDebugMode) {
+                print(requestBody);
+                print(requestBody.length);
+                print(mounted);
+              }
+              if (mounted) {
+                final selectedItem = await showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      // Or SimpleDialog, or your custom Widget
+                      title: const Text('Dialog Title'),
+                      content: SizedBox(
+                        width: double
+                            .maxFinite, // Allow it to take up the full dialog width
+                        height:
+                            300.0, // Set a fixed height for the content area
+                        child: ListView.builder(
+                          // IMPORTANT: itemCount must be the length of your dynamic array
+                          itemCount: requestBody.length,
+                          itemBuilder: (context, index) {
+                            final Map<String, dynamic> item =
+                                requestBody[index];
+                            if (kDebugMode) {
+                              print('item: $item');
+                            }
+                            return ListTile(
+                              leading: Text(
+                                item['title'] ?? '',
+                              ), // Use ?? '' to handle null values gracefully
+                              title: Text(item['url'] ?? 'N/A'),
+                              subtitle: Text(item['initiator'] ?? ''),
+                              onTap: () {
+                                Navigator.of(dialogContext).pop(item);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(
+                              dialogContext,
+                            ).pop(); // Dismiss the dialog
+                          },
+                        ),
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () {
+                            // Perform an action
+                            Navigator.of(dialogContext).pop(
+                              'Dialog Result',
+                            ); // Dismiss and optionally return a result
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (selectedItem != null) {
+                  final Map<String, dynamic> selectedMap =
+                      selectedItem as Map<String, dynamic>;
+                  data = selectedItem;
+                  if (kDebugMode) {
+                    print('Selected URL: ${selectedMap['url']}');
+                    print('Selected Title: ${selectedMap['title']}');
+                  }
+                }
+              }
+            }
             if (kDebugMode) {
               print('page = ${data['url']}');
             }

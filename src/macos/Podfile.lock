@@ -43,11 +43,11 @@ SPEC CHECKSUMS:
   DockProgress: 94765d097d5c54579bf93385b5be71bd6a74fdf6
   file_picker: 7584aae6fa07a041af2b36a2655122d42f578c1a
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   macos_dock_progress: f63c9d2aa05c959212fd5e879496aaf160209302
   screen_retriever_macos: 452e51764a9e1cdb74b3c541238795849f21557f
   window_manager: b729e31d38fb04905235df9ea896128991cad99e
 
-PODFILE CHECKSUM: 135688d45b2058b5bcaa7d1282ebefec42b66830
+PODFILE CHECKSUM: 3f30a7d930d50b8688faa9f13e45aae6e3a0eb2f
 
 COCOAPODS: 1.16.2
