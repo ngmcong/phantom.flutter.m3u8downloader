@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:m3u8downloader/addfile.dart';
 import 'package:m3u8downloader/dataentities.dart';
-import 'package:macos_dock_progress/macos_dock_progress.dart';
+//import 'package:macos_dock_progress/macos_dock_progress.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:path/path.dart' as path;
 
@@ -388,7 +388,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       downloading!.numberOfOffset = urls.length;
       int part = 0;
       int retryl = 0;
-      DockProgress.changeStyle(ProgressBarStyle.bar());
+      //DockProgress.changeStyle(ProgressBarStyle.bar());
       for (var url in urls) {
         HttpClientResponse? response;
         response = await downloadPage(
@@ -398,7 +398,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           isCanRetry: true,
         );
         part++;
-        DockProgress.setProgress(part / downloading!.numberOfOffset);
+        //DockProgress.setProgress(part / downloading!.numberOfOffset);
         var bytes = await consolidateHttpClientResponseBytes(
           response,
           onBytesReceived: (cumulative, total) {
@@ -452,8 +452,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           'Download ${path.basenameWithoutExtension(downloading!.path!)} file get error!';
       _showNotification(message);
     } finally {
-      DockProgress.changeStyle(ProgressBarStyle.squircle());
-      DockProgress.resetProgress();
+      //DockProgress.changeStyle(ProgressBarStyle.squircle());
+      //DockProgress.resetProgress();
     }
   }
 
