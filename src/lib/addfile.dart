@@ -55,7 +55,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
   if (filterTitle == null && file.existsSync()) {
     filterTitle ??= file.readAsStringSync().split('\n');
   }
-  if (title != null && title.isNotEmpty) {
+  if (title != null && title.isNotEmpty && filterTitle != null) {
     for (var filter in filterTitle!) {
       if (title!.contains(filter!)) {
         title = title.replaceAll(filter, "");
@@ -122,10 +122,9 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       onPressed: () async {
                         String? outputFile = await FilePicker.platform.saveFile(
                           dialogTitle: 'Save Your File to desired location',
-                          fileName:
-                              title == null
-                                  ? "video$extension"
-                                  : "$title$extension",
+                          fileName: title == null
+                              ? "video$extension"
+                              : "$title$extension",
                         );
                         txtSaveFilePath.text = outputFile ?? "";
                       },
