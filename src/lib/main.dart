@@ -75,8 +75,8 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 }
 
 Future<void> flutterLocalNotificationInitialize() async {
-  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
-      !kIsWeb && Platform.isLinux
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
+          Platform.isLinux
       ? null
       : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
@@ -89,74 +89,74 @@ Future<void> flutterLocalNotificationInitialize() async {
 
   final List<DarwinNotificationCategory> darwinNotificationCategories =
       <DarwinNotificationCategory>[
-        DarwinNotificationCategory(
-          darwinNotificationCategoryText,
-          actions: <DarwinNotificationAction>[
-            DarwinNotificationAction.text(
-              'text_1',
-              'Action 1',
-              buttonTitle: 'Send',
-              placeholder: 'Placeholder',
-            ),
-          ],
+    DarwinNotificationCategory(
+      darwinNotificationCategoryText,
+      actions: <DarwinNotificationAction>[
+        DarwinNotificationAction.text(
+          'text_1',
+          'Action 1',
+          buttonTitle: 'Send',
+          placeholder: 'Placeholder',
         ),
-        DarwinNotificationCategory(
-          darwinNotificationCategoryPlain,
-          actions: <DarwinNotificationAction>[
-            DarwinNotificationAction.plain('id_1', 'Action 1'),
-            DarwinNotificationAction.plain(
-              'id_2',
-              'Action 2 (destructive)',
-              options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.destructive,
-              },
-            ),
-            DarwinNotificationAction.plain(
-              navigationActionId,
-              'Action 3 (foreground)',
-              options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.foreground,
-              },
-            ),
-            DarwinNotificationAction.plain(
-              'id_4',
-              'Action 4 (auth required)',
-              options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.authenticationRequired,
-              },
-            ),
-          ],
-          options: <DarwinNotificationCategoryOption>{
-            DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+      ],
+    ),
+    DarwinNotificationCategory(
+      darwinNotificationCategoryPlain,
+      actions: <DarwinNotificationAction>[
+        DarwinNotificationAction.plain('id_1', 'Action 1'),
+        DarwinNotificationAction.plain(
+          'id_2',
+          'Action 2 (destructive)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.destructive,
           },
         ),
-      ];
+        DarwinNotificationAction.plain(
+          navigationActionId,
+          'Action 3 (foreground)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.foreground,
+          },
+        ),
+        DarwinNotificationAction.plain(
+          'id_4',
+          'Action 4 (auth required)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.authenticationRequired,
+          },
+        ),
+      ],
+      options: <DarwinNotificationCategoryOption>{
+        DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+      },
+    ),
+  ];
 
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
   final DarwinInitializationSettings initializationSettingsDarwin =
       DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-        // onDidReceiveLocalNotification:
-        //     (int id, String? title, String? body, String? payload) async {
-        //   didReceiveLocalNotificationStream.add(
-        //     ReceivedNotification(
-        //       id: id,
-        //       title: title,
-        //       body: body,
-        //       payload: payload,
-        //     ),
-        //   );
-        // },
-        notificationCategories: darwinNotificationCategories,
-      );
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
+    // onDidReceiveLocalNotification:
+    //     (int id, String? title, String? body, String? payload) async {
+    //   didReceiveLocalNotificationStream.add(
+    //     ReceivedNotification(
+    //       id: id,
+    //       title: title,
+    //       body: body,
+    //       payload: payload,
+    //     ),
+    //   );
+    // },
+    notificationCategories: darwinNotificationCategories,
+  );
   final LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(
-        defaultActionName: 'Open notification',
-        defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
-      );
+    defaultActionName: 'Open notification',
+    defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
+  );
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
     iOS: initializationSettingsDarwin,
@@ -174,17 +174,17 @@ Future<void> flutterLocalNotificationInitialize() async {
     initializationSettings,
     onDidReceiveNotificationResponse:
         (NotificationResponse notificationResponse) {
-          switch (notificationResponse.notificationResponseType) {
-            case NotificationResponseType.selectedNotification:
-              selectNotificationStream.add(notificationResponse.payload);
-              break;
-            case NotificationResponseType.selectedNotificationAction:
-              if (notificationResponse.actionId == navigationActionId) {
-                selectNotificationStream.add(notificationResponse.payload);
-              }
-              break;
+      switch (notificationResponse.notificationResponseType) {
+        case NotificationResponseType.selectedNotification:
+          selectNotificationStream.add(notificationResponse.payload);
+          break;
+        case NotificationResponseType.selectedNotificationAction:
+          if (notificationResponse.actionId == navigationActionId) {
+            selectNotificationStream.add(notificationResponse.payload);
           }
-        },
+          break;
+      }
+    },
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
 }
@@ -192,13 +192,13 @@ Future<void> flutterLocalNotificationInitialize() async {
 Future<void> _showNotification(String message) async {
   const AndroidNotificationDetails androidNotificationDetails =
       AndroidNotificationDetails(
-        'your channel id',
-        'your channel name',
-        channelDescription: 'your channel description',
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker',
-      );
+    'your channel id',
+    'your channel name',
+    channelDescription: 'your channel description',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
   const NotificationDetails notificationDetails = NotificationDetails(
     android: androidNotificationDetails,
   );
@@ -264,10 +264,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     String? referer,
   ) async {
     if (listData.contains('BANDWIDTH=')) {
-      var listMedias = listData
-          .split('\n')
-          .where((e) => e.contains("BANDWIDTH="))
-          .toList();
+      var listMedias =
+          listData.split('\n').where((e) => e.contains("BANDWIDTH=")).toList();
       var intRegex = RegExp(r'BANDWIDTH=(\d+)', multiLine: false);
       int maxRegValue = 0;
       String currentMaxLineValue = '';
@@ -549,9 +547,17 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                             if (kDebugMode) {
                               print('item: $item');
                             }
+                            double maxWidth =
+                                MediaQuery.of(context).size.width * 0.5;
                             return ListTile(
-                              leading: Text(
-                                item['title'] ?? '',
+                              leading: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: maxWidth), // Giới hạn tối đa 50%
+                                child: Text(
+                                  item['title'] ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ), // Use ?? '' to handle null values gracefully
                               title: Text(item['url'] ?? 'N/A'),
                               subtitle: Text(item['initiator'] ?? ''),
