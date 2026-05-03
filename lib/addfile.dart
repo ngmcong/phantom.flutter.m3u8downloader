@@ -120,7 +120,7 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                     ),
                     TextButton(
                       onPressed: () async {
-                        String? outputFile = await FilePicker.platform.saveFile(
+                        String? outputFile = await FilePicker.saveFile(
                           dialogTitle: 'Save Your File to desired location',
                           fileName: title == null
                               ? "video$extension"
