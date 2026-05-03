@@ -453,6 +453,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     } finally {
       // DockProgress.changeStyle(ProgressBarStyle.squircle());
       // DockProgress.resetProgress();
+      await windowManager.setProgressBar(-1);
     }
   }
 
