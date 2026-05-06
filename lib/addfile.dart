@@ -201,6 +201,12 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                           referer,
                         ),
                       );
+                    } else {
+                      if (kDebugMode) {
+                        print(
+                          'Content-Type is not a valid m3u8 file: $headerContent',
+                        );
+                      }
                     }
                   },
                   child: const Row(

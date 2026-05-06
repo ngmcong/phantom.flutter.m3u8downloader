@@ -377,6 +377,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           var mapUrl = listData.split('#EXT-X-MAP:URI=')[1].split('"')[1];
           urls.insert(0, validUrl(baseAddress, mapUrl));
         }
+      } else {
+        if (kDebugMode) {
+          print('Content-Type is not a valid m3u8 file: $headerContent');
+        }
       }
     }
     bool isFirstTime = true;

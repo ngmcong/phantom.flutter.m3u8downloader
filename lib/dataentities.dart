@@ -17,6 +17,7 @@ class DataDownloadQueue {
 
 List<String> validTypes = [
   'application/vnd.apple.mpegurl',
+  'application/vnd.apple.mpegurl; charset=utf-8',
   'application/x-mpegurl',
   'application/x-mpegurl; charset=utf-8',
   'text/html; charset=utf-8',
