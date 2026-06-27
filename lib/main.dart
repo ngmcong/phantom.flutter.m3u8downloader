@@ -533,10 +533,13 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               center: true,
               backgroundColor: Colors.transparent,
               skipTaskbar: false,
-              titleBarStyle: TitleBarStyle.hidden,
-              windowButtonVisibility: false,
+              titleBarStyle: TitleBarStyle.normal,
+              windowButtonVisibility: true,
             );
             windowManager.waitUntilReadyToShow(windowOptions, () async {
+              // 1. Phóng to ứng dụng hết cỡ (Maximize) ngay khi sẵn sàng
+              await windowManager.maximize();
+              // 2. Hiển thị và focus ứng dụng
               await windowManager.show();
               await windowManager.focus();
             });
