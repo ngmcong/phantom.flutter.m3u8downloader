@@ -29,6 +29,11 @@ double? fileSize;
 List<String?>? filterTitle;
 final FocusNode _textFieldFocusNode = FocusNode();
 
+String sanitizeFileName(String name) {
+  // RegExp này sẽ tìm tất cả các ký tự: < > : " / \ | ? *
+  return name.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+}
+
 Future<DataDownloadQueue?> addFileDialogBuilder(
   BuildContext context, {
   String? url,
@@ -120,11 +125,14 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                     ),
                     TextButton(
                       onPressed: () async {
+                        String fileName = title == null
+                            ? "video$extension"
+                            : "$title$extension";
+                        fileName = sanitizeFileName(fileName);
+                        debugPrint('fileName: $fileName');
                         String? outputFile = await FilePicker.saveFile(
                           dialogTitle: 'Save Your File to desired location',
-                          fileName: title == null
-                              ? "video$extension"
-                              : "$title$extension",
+                          fileName: fileName,
                         );
                         txtSaveFilePath.text = outputFile ?? "";
                       },
