@@ -337,6 +337,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   }
 
   void downloadFile({String? referer}) async {
+    debugPrint('Starting download for: ${downloading?.url}');
     setState(() {
       downloading!.status = Status.downloading;
     });
@@ -401,6 +402,9 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         );
         part++;
         // DockProgress.setProgress(part / downloading!.numberOfOffset);
+        debugPrint(
+          'Downloading part $part/${downloading!.numberOfOffset} for: ${downloading!.url}',
+        );
         await windowManager.setProgressBar(part / downloading!.numberOfOffset);
         var bytes = await consolidateHttpClientResponseBytes(
           response,
@@ -440,6 +444,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         checkDownload();
       });
     } catch (ex) {
+      debugPrint('Download error: $ex');
       setState(() {
         downloading!.status = Status.error;
         var file = File(downloading!.path!);
@@ -523,8 +528,18 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
                     e['url'].toString().contains('master.m3u8') == false,
               );
             }
-            await windowManager.show();
-            await windowManager.focus();
+            WindowOptions windowOptions = const WindowOptions(
+              size: Size(800, 600),
+              center: true,
+              backgroundColor: Colors.transparent,
+              skipTaskbar: false,
+              titleBarStyle: TitleBarStyle.hidden,
+              windowButtonVisibility: false,
+            );
+            windowManager.waitUntilReadyToShow(windowOptions, () async {
+              await windowManager.show();
+              await windowManager.focus();
+            });
 
             if (requestBody.length > 1) {
               if (kDebugMode) {
