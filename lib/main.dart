@@ -6,10 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:m3u8downloader/addfile.dart';
+import 'package:m3u8downloader/databasehelper.dart';
 import 'package:m3u8downloader/dataentities.dart';
 // import 'package:macos_dock_progress/macos_dock_progress.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:path/path.dart' as path;
+
+import 'sqliteupdatescheduler.dart';
 
 int id = 0;
 
@@ -244,6 +247,7 @@ class M3U8DownloaderView extends StatefulWidget {
 class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   List<DataDownloadQueue> dataDownloadQueues = [];
   DataDownloadQueue? downloading;
+  final SqliteUpdateScheduler _sqliteScheduler = SqliteUpdateScheduler();
 
   void checkDownload() async {
     if ((downloading == null ||
@@ -341,6 +345,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     setState(() {
       downloading!.status = Status.downloading;
     });
+    await DatabaseHelper.instance.updateItem(downloading!);
     if (referer == null || referer.isEmpty) referer = downloading!.referer;
     List<String> urls = [downloading!.url!];
     var httpClient = HttpClient();
@@ -408,7 +413,7 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
         await windowManager.setProgressBar(part / downloading!.numberOfOffset);
         var bytes = await consolidateHttpClientResponseBytes(
           response,
-          onBytesReceived: (cumulative, total) {
+          onBytesReceived: (cumulative, total) async {
             if ((retryl % 5) != 0) {
               retryl++;
               return;
@@ -421,6 +426,8 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
               downloading!.size =
                   downloading!.downloadedSize / part.toDouble() * urls.length;
             });
+            // await DatabaseHelper.instance.updateItem(downloading!);
+            _sqliteScheduler.scheduleUpdate(downloading!);
           },
         );
         if (response.headers['content-type']?.first == 'image/png') {
@@ -438,19 +445,21 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       }
       setState(() {
         downloading!.status = Status.downloadCompleted;
-        var message =
-            'Download ${path.basenameWithoutExtension(downloading!.path!)} file completed!';
-        _showNotification(message);
-        checkDownload();
       });
+      var message =
+          'Download ${path.basenameWithoutExtension(downloading!.path!)} file completed!';
+      _showNotification(message);
+      await DatabaseHelper.instance.updateItem(downloading!);
+      checkDownload();
     } catch (ex) {
       debugPrint('Download error: $ex');
       setState(() {
         downloading!.status = Status.error;
-        var file = File(downloading!.path!);
-        if (file.existsSync()) file.deleteSync();
-        checkDownload();
       });
+      var file = File(downloading!.path!);
+      if (file.existsSync()) file.deleteSync();
+      await DatabaseHelper.instance.updateItem(downloading!);
+      checkDownload();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -480,8 +489,10 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
       tag: tag,
     );
     if (dialogVal == null) return;
-    setState(() {
-      dataDownloadQueues.add(dialogVal);
+    setState(() async {
+      // dataDownloadQueues.add(dialogVal);
+      await DatabaseHelper.instance.insertItem(dialogVal);
+      await _loadDownloadQueue(); // Load lại danh sách mới nhất
       checkDownload();
     });
   }
@@ -493,9 +504,19 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
     return false;
   }
 
+  // Hàm load dữ liệu từ SQLite
+  Future<void> _loadDownloadQueue() async {
+    final list = await DatabaseHelper.instance.getAllItems();
+    setState(() {
+      dataDownloadQueues = list;
+      // isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadDownloadQueue();
     HttpServer.bind('127.0.0.1', 60024).then((HttpServer server) {
       server.listen((request) async {
         switch (request.method) {

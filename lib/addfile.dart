@@ -203,10 +203,10 @@ Future<DataDownloadQueue?> addFileDialogBuilder(
                       Navigator.pop(
                         context,
                         DataDownloadQueue(
-                          txtSaveFilePath.text,
-                          txtUrl.text,
-                          fileSize,
-                          referer,
+                          path: txtSaveFilePath.text,
+                          url: txtUrl.text,
+                          size: fileSize,
+                          referer: referer,
                         ),
                       );
                     } else {
