@@ -505,18 +505,34 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
   }
 
   // Hàm load dữ liệu từ SQLite
-  Future<void> _loadDownloadQueue() async {
+  Future<void> _loadDownloadQueue({bool isFirstTime = false}) async {
     final list = await DatabaseHelper.instance.getAllItems();
     setState(() {
       dataDownloadQueues = list;
       // isLoading = false;
     });
+    if (isFirstTime) {
+      if (kDebugMode) {
+        print('Total download queues: ${dataDownloadQueues.length}');
+      }
+      if (dataDownloadQueues.any((c) => c.status == Status.downloading)) {
+        downloading = dataDownloadQueues.firstWhere(
+          (c) => c.status == Status.downloading,
+        );
+        downloading!.status = Status.error;
+        if (kDebugMode) {
+          print(
+              'Resetting downloading status to error for: ${downloading!.url}');
+        }
+      }
+      checkDownload();
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    _loadDownloadQueue();
+    _loadDownloadQueue(isFirstTime: true);
     HttpServer.bind('127.0.0.1', 60024).then((HttpServer server) {
       server.listen((request) async {
         switch (request.method) {
