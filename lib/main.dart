@@ -524,6 +524,9 @@ class M3U8DownloaderAppState extends State<M3U8DownloaderView> {
           print(
               'Resetting downloading status to error for: ${downloading!.url}');
         }
+        setState(() {
+          DatabaseHelper.instance.updateItem(downloading!);
+        });
       }
       checkDownload();
     }
